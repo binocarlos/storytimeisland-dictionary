@@ -1,0 +1,19 @@
+{
+  "name": "storytimeisland-dictionary",
+  "description": "Event processor for the storytime island dictionary feature",
+  "version": "0.0.1",
+  "keywords": [],
+  "dependencies": {
+    "component/emitter": "*",
+    "component/jquery": "*"
+  },
+  "development": {},
+  "styles": [
+    
+  ],
+  "main":"index.js",
+  "scripts": [
+    "index.js"
+  ],
+  "remotes": []
+}
