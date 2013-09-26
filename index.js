@@ -14,10 +14,10 @@
 var $ = require('jquery');
 var Emitter = require('emitter');
 
-module.exports = function storytimeisland_dictionary(dict_array, currentpos, currentsize){
+module.exports = function storytimeisland_dictionary(page, currentpos, currentsize){
 
   // this is the array of dictionary descriptions
-  dict_array = dict_array || [];
+  var dict_array = page.dictionary || [];
 
   function set_scale(elem, targetscale){
     elem.css({
@@ -90,6 +90,7 @@ module.exports = function storytimeisland_dictionary(dict_array, currentpos, cur
     }
 
     var block = find_dictionary(adjusted_evpos);
+
 
     if(!block){
       return;
