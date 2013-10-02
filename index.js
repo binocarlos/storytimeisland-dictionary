@@ -37,18 +37,33 @@ module.exports = function storytimeisland_dictionary(page, currentpos, currentsi
     }, 1000)
   }
 
+  function parse_block(block){
+    var left = parseFloat(block.x);
+    var width = parseFloat(block.width);
+    var right = left + width;
+    var top = parseFloat(block.y);
+    var height = parseFloat(block.height);
+    var bottom = top + height;
+
+    return {
+      width:width,
+      height:height,
+      left:left,
+      right:right,
+      top:top,
+      bottom:bottom
+    }
+  }
+
   function find_dictionary(hit){
     var ret = null;
 
     for(var i=0; i<dict_array.length; i++){
       var block = dict_array[i];
 
-      var left = parseFloat(block.x);
-      var right = left + (parseFloat(block.width));
-      var top = parseFloat(block.y);
-      var bottom = top + (parseFloat(block.height));
+      var coords = parse_block(block);
 
-      if(hit.x>=left && hit.x<=right && hit.y>=top && hit.y<=bottom){
+      if(hit.x>=coords.left && hit.x<=coords.right && hit.y>=coords.top && hit.y<=coords.bottom){
         ret = block;
         break;
       }
@@ -56,45 +71,7 @@ module.exports = function storytimeisland_dictionary(page, currentpos, currentsi
     return ret;
   }
 
-  /*
-  
-    this function is run with a coords object (x,y) for the tap on the screen
-    
-  */
-  function dictionary_handle(evpos){
-
-    /*
-      
-      where they clicked in relation to the book on the screen
-      
-    */
-    var bookevpos = {
-      x:evpos.x - currentpos.x,
-      y:evpos.y - currentpos.y
-    }
-
-    /*
-    
-      the book coords scaled to match the original boundary from flash
-      
-    */
-    var adjusted_evpos = {
-      x:bookevpos.x * (1/currentsize.ratio),
-      y:bookevpos.y * (1/currentsize.ratio)
-    }
-
-    var offset = currentsize.dictionary_offset;
-
-    if(offset){
-      adjusted_evpos.x += offset;
-    }
-
-    var block = find_dictionary(adjusted_evpos);
-
-
-    if(!block){
-      return;
-    }
+  function render_block(block, evpos){
 
     /*
     
@@ -148,9 +125,78 @@ module.exports = function storytimeisland_dictionary(page, currentpos, currentsi
     dictionary_handle.emit('sound', mp3);
   }
 
+
+
+  /*
+  
+    this function is run with a coords object (x,y) for the tap on the screen
+    
+  */
+  function dictionary_handle(evpos){
+
+    /*
+      
+      where they clicked in relation to the book on the screen
+      
+    */
+    var bookevpos = {
+      x:evpos.x - currentpos.x,
+      y:evpos.y - currentpos.y
+    }
+
+    /*
+    
+      the book coords scaled to match the original boundary from flash
+      
+    */
+    var adjusted_evpos = {
+      x:bookevpos.x * (1/currentsize.ratio),
+      y:bookevpos.y * (1/currentsize.ratio)
+    }
+
+    var offset = currentsize.dictionary_offset;
+
+    if(offset){
+      adjusted_evpos.x += offset;
+    }
+
+    var block = find_dictionary(adjusted_evpos);
+
+
+    if(!block){
+      return;
+    }
+
+    render_block(block, evpos);
+  }
+
+  /*
+  
+    convert the given index of dictionary item into co-ords to trigger it
+    
+  */
+  function render_index(index){
+    var entry = dict_array[index];
+    var coords = parse_block(entry);
+
+    var x = coords.left + (coords.width/2);
+    var y = coords.top + (coords.height/2);
+
+    var trigger_coord = {
+      x:currentpos.x + (x * currentsize.ratio),
+      y:currentpos.y + (y * currentsize.ratio)
+    }
+
+    render_block(entry, trigger_coord);
+
+    dictionary_handle.emit('hint', entry, trigger_coord);
+  }
+
   dictionary_handle.reset = function(){
     $('.dictionarytab').remove();
   }
+
+  dictionary_handle.render_index = render_index;
 
   for(var i in Emitter.prototype){
     dictionary_handle[i] = Emitter.prototype[i];
