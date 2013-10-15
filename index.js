@@ -71,7 +71,7 @@ module.exports = function storytimeisland_dictionary(page, currentpos, currentsi
     return ret;
   }
 
-  function render_block(block, evpos){
+  function render_block(block, evpos, nosound){
 
     /*
     
@@ -122,7 +122,13 @@ module.exports = function storytimeisland_dictionary(page, currentpos, currentsi
       removepopup(popup);
     }, 3000);
 
-    dictionary_handle.emit('sound', mp3);
+    if(nosound){
+
+    }
+    else{
+      dictionary_handle.emit('sound', mp3);  
+    }
+    
   }
 
 
@@ -174,7 +180,7 @@ module.exports = function storytimeisland_dictionary(page, currentpos, currentsi
     convert the given index of dictionary item into co-ords to trigger it
     
   */
-  function render_index(index){
+  function render_index(index, nosound){
     var entry = dict_array[index];
     var coords = parse_block(entry);
 
@@ -192,7 +198,7 @@ module.exports = function storytimeisland_dictionary(page, currentpos, currentsi
       trigger_coord.x -= (offset * currentsize.ratio);
     }
 
-    render_block(entry, trigger_coord);
+    render_block(entry, trigger_coord, nosound);
 
     dictionary_handle.emit('hint', entry, trigger_coord);
   }
